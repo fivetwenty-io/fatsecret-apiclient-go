@@ -1,0 +1,251 @@
+version: "1"
+
+# Name overrides per P2 §3.3–§3.4.
+# Builder applies these after the naming algorithm; override wins.
+# Format: namespace + name + version uniquely identify a method entry.
+
+overrides:
+  # foods namespace — "List" preferred over "Get" for collection returns (P2 §3.4)
+  - namespace: foods_favorites
+    name: get_favorites
+    version: 2
+    go_name: GetFavorites
+
+  - namespace: foods_favorites
+    name: get_most_eaten
+    version: 2
+    go_name: GetMostEaten
+
+  - namespace: foods_favorites
+    name: get_recently_eaten
+    version: 2
+    go_name: GetRecentlyEaten
+
+  # foods.search version disambiguation
+  - namespace: foods
+    name: search
+    version: 1
+    go_name: SearchV1   # deprecated; suffix forces distinction from canonical
+
+  - namespace: foods
+    name: search
+    version: 3
+    go_name: Search     # canonical; no suffix
+
+  - namespace: foods
+    name: search
+    version: 5
+    go_name: SearchV5
+
+  # food.get version disambiguation
+  - namespace: food
+    name: get
+    version: 4
+    go_name: Get        # canonical; no suffix
+
+  - namespace: food
+    name: get
+    version: 5
+    go_name: GetV5
+
+  # food_categories / food_sub_categories / food_brands — "GetAll" preferred
+  - namespace: food_categories
+    name: get_all
+    version: 2
+    go_name: GetAll
+
+  - namespace: food_sub_categories
+    name: get_all
+    version: 2
+    go_name: GetAll
+
+  - namespace: food_brands
+    name: get_all
+    version: 2
+    go_name: GetAll
+
+  # food_entries — explicit names matching P2 §3.4
+  - namespace: food_entries
+    name: get
+    version: 2
+    go_name: Get
+
+  - namespace: food_entries
+    name: get_month
+    version: 2
+    go_name: GetMonth
+
+  - namespace: food_entries
+    name: copy
+    version: 1
+    go_name: Copy
+
+  - namespace: food_entries
+    name: create
+    version: 1
+    go_name: Create
+
+  - namespace: food_entries
+    name: edit
+    version: 1
+    go_name: Edit
+
+  - namespace: food_entries
+    name: delete
+    version: 1
+    go_name: Delete
+
+  # recipes namespace
+  - namespace: recipes
+    name: search
+    version: 3
+    go_name: Search
+
+  - namespace: recipes_favorites
+    name: get_favorites
+    version: 2
+    go_name: GetFavorites
+
+  # recipe_types
+  - namespace: recipe_types
+    name: get_all
+    version: 2
+    go_name: GetAll
+
+  # weight / weights
+  - namespace: weight
+    name: update
+    version: 1
+    go_name: Update
+
+  - namespace: weights
+    name: get_month
+    version: 2
+    go_name: GetMonth
+
+  # exercises — canonical is v2; v1 deprecated
+  - namespace: exercises
+    name: get
+    version: 1
+    go_name: GetV1      # deprecated suffix
+
+  - namespace: exercises
+    name: get
+    version: 2
+    go_name: Get        # canonical
+
+  # exercise_entries
+  - namespace: exercise_entries
+    name: get
+    version: 1
+    go_name: Get
+
+  - namespace: exercise_entries
+    name: edit
+    version: 1
+    go_name: Edit
+
+  - namespace: exercise_entries
+    name: commit_day
+    version: 1
+    go_name: CommitDay
+
+  - namespace: exercise_entries
+    name: save_template
+    version: 1
+    go_name: SaveTemplate
+
+  # saved_meals — "List" preferred for collection get (P2 §3.3)
+  - namespace: saved_meals
+    name: get
+    version: 2
+    go_name: List
+
+  - namespace: saved_meals
+    name: create
+    version: 1
+    go_name: Create
+
+  - namespace: saved_meals
+    name: edit
+    version: 1
+    go_name: Edit
+
+  - namespace: saved_meals
+    name: delete
+    version: 1
+    go_name: Delete
+
+  - namespace: saved_meals
+    name: get_items
+    version: 2
+    go_name: ListItems
+
+  - namespace: saved_meals
+    name: add_item
+    version: 1
+    go_name: AddItem
+
+  - namespace: saved_meals
+    name: edit_item
+    version: 1
+    go_name: EditItem
+
+  - namespace: saved_meals
+    name: delete_item
+    version: 1
+    go_name: DeleteItem
+
+  # profile
+  - namespace: profile
+    name: create
+    version: 1
+    go_name: Create
+
+  - namespace: profile
+    name: get_auth
+    version: 1
+    go_name: GetAuth
+
+  - namespace: profile
+    name: get
+    version: 1
+    go_name: Get
+
+  # native — descriptive names over raw endpoint words
+  - namespace: native
+    name: nlp
+    version: 1
+    go_name: Process
+
+  - namespace: native
+    name: recognize
+    version: 2
+    go_name: Recognize
+
+  # feedback
+  - namespace: feedback
+    name: submit
+    version: 1
+    go_name: Submit
+
+  # food namespace — explicit to avoid any naming-algo ambiguity
+  - namespace: food
+    name: find_id_for_barcode
+    version: 2
+    go_name: FindIDForBarcode
+
+  - namespace: food
+    name: add_favorite
+    version: 1
+    go_name: AddFavorite
+
+  - namespace: food
+    name: delete_favorite
+    version: 1
+    go_name: DeleteFavorite
+
+  - namespace: food
+    name: create
+    version: 2
+    go_name: Create

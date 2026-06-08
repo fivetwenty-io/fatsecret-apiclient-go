@@ -1,0 +1,93 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+    - ineffassign
+    - govet
+    - staticcheck
+    - errorlint
+    - wrapcheck
+    - gosec
+    - cyclop
+    - unparam
+    - revive
+    - misspell
+
+  settings:
+    cyclop:
+      max-complexity: 15
+
+    wrapcheck:
+      ignore-sigs:
+        - func errors.New(text string) error
+        - func fmt.Errorf(format string, a ...any) (err error)
+        - func io.ReadAll(r io.Reader) ([]byte, error)
+        - func net/http.NewRequestWithContext(ctx context.Context, method string, url string, body io.Reader) (*net/http.Request, error)
+        - func encoding/json.Marshal(v any) ([]byte, error)
+        - func os.WriteFile(name string, data []byte, perm os.FileMode) error
+        - func crypto/rand.Read(b []byte) (n int, err error)
+        - func (*golang.org/x/sync/singleflight.Group).Do(key string, fn func() (any, error)) (v any, err error, shared bool)
+        - func (*github.com/fivetwenty-io/fatsecret-apiclient-go/internal/http.Transport).Do(ctx context.Context, req *net/http.Request) (*net/http.Response, []byte, error)
+        - func (github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/auth.Authenticator).Refresh(ctx context.Context) error
+        - func (github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/auth.Authenticator).GetHeaders(ctx context.Context) (map[string]string, error)
+        - func (github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Client).Do(ctx context.Context, req *github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Request) (*github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Response, error)
+        - field GetBody func() (io.ReadCloser, error)
+        - func github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors.DispatchByFatSecretCode(code int, msg string, httpStatus int) error
+
+    revive:
+      rules:
+        - name: unused-parameter
+          disabled: false
+        - name: exported
+          arguments:
+            - disableStutteringCheck
+
+  # golangci-lint v2 exclusions live under linters.exclusions.
+  exclusions:
+    # Auto-detect files with a "// Code generated ... DO NOT EDIT." header and
+    # exclude them from all linters; covers the generated pkg/api/* surface.
+    generated: lax
+    rules:
+      # Generated compatibility matrix (belt-and-suspenders alongside the header detection).
+      - path: "pkg/compatibility/matrix\\.go"
+        linters:
+          - errcheck
+          - ineffassign
+          - govet
+          - staticcheck
+          - errorlint
+          - wrapcheck
+          - gosec
+          - cyclop
+          - unparam
+          - revive
+          - misspell
+      # Generated API service packages.
+      - path: "pkg/api/"
+        linters:
+          - errcheck
+          - ineffassign
+          - govet
+          - staticcheck
+          - errorlint
+          - wrapcheck
+          - gosec
+          - cyclop
+          - unparam
+          - revive
+          - misspell
+      # Test files follow different conventions: permissive temp-file permissions
+      # for fixtures (gosec G302/G306), unwrapped errors, unused interface-method
+      # parameters, and higher complexity are all acceptable in tests.
+      - path: "_test\\.go"
+        linters:
+          - gosec
+          - wrapcheck
+          - cyclop
+          - unparam
+          - errcheck
+      - path: "_test\\.go"
+        linters:
+          - revive
+        text: "unused-parameter"

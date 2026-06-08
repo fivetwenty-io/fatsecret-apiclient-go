@@ -1,0 +1,24 @@
+# Build & test artifacts
+/coverage.out
+/coverage.html
+*.test
+*.out
+*.prof
+
+# Binaries
+/bin/
+/dist/
+/fsgen
+
+# Editor/OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local env
+.env
+.env.local
+
+# Orchestration workspace (intermediate work artifacts)
+/.agents/
