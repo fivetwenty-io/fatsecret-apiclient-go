@@ -319,3 +319,69 @@ func TestAuthenticationError_ErrorsAs(t *testing.T) {
 		}
 	})
 }
+
+// --- FromResponse ---
+
+func TestFromResponse_IPBlockedEnvelope_HTTP200(t *testing.T) {
+	// The exact shape observed live from FatSecret when the caller IP is not
+	// allowlisted: HTTP 200 + numeric code 21.
+	body := []byte(`{ "error": {"code": 21, "message": "Invalid IP address detected:  '96.243.23.51'" }}`)
+
+	err := FromResponse(200, body)
+	if err == nil {
+		t.Fatal("expected error for code-21 envelope, got nil")
+	}
+	if !errors.Is(err, ErrIPBlocked) {
+		t.Fatalf("expected ErrIPBlocked, got %v", err)
+	}
+	var perr *PermissionError
+	if !errors.As(err, &perr) {
+		t.Fatalf("expected *PermissionError, got %T", err)
+	}
+	if perr.Code != 21 {
+		t.Errorf("Code: expected 21, got %d", perr.Code)
+	}
+	if !strings.Contains(perr.Message, "96.243.23.51") {
+		t.Errorf("Message should preserve the FatSecret detail, got %q", perr.Message)
+	}
+}
+
+func TestFromResponse_StringEncodedCode(t *testing.T) {
+	// FatSecret has historically encoded code as a quoted string.
+	body := []byte(`{"error":{"code":"11","message":"too many requests"}}`)
+
+	err := FromResponse(200, body)
+	if !errors.Is(err, ErrRateLimited) {
+		t.Fatalf("expected ErrRateLimited for code \"11\", got %v", err)
+	}
+}
+
+func TestFromResponse_SuccessBody_NilError(t *testing.T) {
+	body := []byte(`{"foods_search":{"results":{"food":[]}}}`)
+	if err := FromResponse(200, body); err != nil {
+		t.Fatalf("expected nil for success body, got %v", err)
+	}
+}
+
+func TestFromResponse_EmptyBody_NilError(t *testing.T) {
+	if err := FromResponse(200, nil); err != nil {
+		t.Fatalf("expected nil for empty 200 body, got %v", err)
+	}
+}
+
+func TestFromResponse_StatusFallback_NoEnvelope(t *testing.T) {
+	// No FatSecret envelope, but a transport-level 4xx/5xx still yields a typed error.
+	if err := FromResponse(503, []byte("upstream down")); !errors.Is(err, ErrServer) {
+		t.Fatalf("expected ErrServer for HTTP 503, got %v", err)
+	}
+	if err := FromResponse(401, nil); !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("expected ErrUnauthorized for HTTP 401, got %v", err)
+	}
+}
+
+func TestFromResponse_MalformedBody_FallsBackToStatus(t *testing.T) {
+	// Non-JSON body on a 200 must not panic and must be treated as success.
+	if err := FromResponse(200, []byte("not json")); err != nil {
+		t.Fatalf("expected nil for unparseable 200 body, got %v", err)
+	}
+}

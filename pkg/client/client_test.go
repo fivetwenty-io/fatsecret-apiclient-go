@@ -13,6 +13,7 @@ import (
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/internal/ctxkeys"
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/auth"
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client"
+	fserrors "github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors"
 )
 
 // validAuth returns a functional OAuth1 authenticator using dummy credentials.
@@ -259,6 +260,39 @@ func newTestServer(t *testing.T, statusCode int, body string) (*httptest.Server,
 	}))
 	t.Cleanup(srv.Close)
 	return srv, &lastRawQuery
+}
+
+func TestDo_FatSecretErrorEnvelope_HTTP200_ReturnsTypedError(t *testing.T) {
+	t.Parallel()
+	// FatSecret returns API failures as HTTP 200 + an error envelope. Do must
+	// surface this as a typed error rather than a "successful" Response.
+	const body = `{ "error": {"code": 21, "message": "Invalid IP address detected:  '203.0.113.7'" }}`
+	srv, _ := newTestServer(t, http.StatusOK, body)
+
+	c, err := client.NewClient(client.Options{
+		Authenticator: validAuth(),
+		BaseURL:       srv.URL,
+		MaxRetries:    0,
+	})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	t.Cleanup(func() { _ = c.Close() })
+
+	resp, err := c.Do(context.Background(), &client.Request{
+		Method: http.MethodGet,
+		Path:   "/rest/foods/search/v5",
+	})
+	if err == nil {
+		t.Fatal("expected typed error for HTTP-200 error envelope, got nil")
+	}
+	if !errors.Is(err, fserrors.ErrIPBlocked) {
+		t.Fatalf("expected ErrIPBlocked, got %v", err)
+	}
+	// The Response is still returned so callers can inspect status/body.
+	if resp == nil || resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected Response with status 200 alongside error, got %+v", resp)
+	}
 }
 
 func TestDo_HappyPath_GET(t *testing.T) {

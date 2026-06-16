@@ -8,6 +8,8 @@ import (
 	"net/url"
 
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client"
+	fserrors "github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors"
+	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/types"
 )
 
 // _ suppresses unused import for packages where all methods use request structs.
@@ -21,7 +23,9 @@ type Service interface {
 	Create(ctx context.Context, req CreateRequest) (FoodCreateResult, error)
 	// DeleteFavorite calls DELETE /rest/food/favorite/v1. Auth: oauth1_delegated.
 	DeleteFavorite(ctx context.Context, req DeleteFavoriteRequest) (SuccessResult, error)
-	// FindIDForBarcode calls GET /rest/food/barcode/v2. Auth: client_credentials. Scope: barcode.
+	// FindIDForBarcode resolves a GTIN-13 barcode to its full Food via
+	// food.find_id_for_barcode (method-style) + food.get.v4. Auth: client_credentials.
+	// Scope: barcode. See the implementation note — this is a hand-corrected composite.
 	FindIDForBarcode(ctx context.Context, req FindIDForBarcodeRequest) (Food, error)
 	// Get calls GET /rest/food/v4. Auth: client_credentials. Scope: basic.
 	Get(ctx context.Context, req GetRequest) (Food, error)
@@ -107,27 +111,53 @@ func (s *service) DeleteFavorite(ctx context.Context, req DeleteFavoriteRequest)
 }
 
 // FindIDForBarcode implements Service.FindIDForBarcode.
+//
+// MANUALLY CORRECTED — not faithfully regenerated. FatSecret's barcode lookup is
+// a two-step, method-style flow, not the single path-style call spec/fatsecret.yaml
+// models:
+//
+//  1. food.find_id_for_barcode resolves a GTIN-13 to a food_id. The path-style
+//     endpoint (/rest/food/barcode/v2) returns error 101 "API was not resolved";
+//     only the method-style /rest/server.api?method=food.find_id_for_barcode
+//     resolves, and it returns {"food_id":{"value":"N"}} — an id, not a Food.
+//  2. food.get.v4 fetches the full Food (with servings) for that id.
+//
+// A food_id of 0 means the barcode is not in FatSecret's catalog → ErrNotFound.
+// The spec/generator must be updated to model this composite; until then this
+// hand-written body is the source of truth.
 func (s *service) FindIDForBarcode(ctx context.Context, req FindIDForBarcodeRequest) (Food, error) {
 	var zero Food
+
+	// Step 1 — resolve the barcode to a food_id via the method-style endpoint.
 	params := req.ToParams()
+	params.Set("method", "food.find_id_for_barcode")
 	creq := &client.Request{
 		Method: "GET",
-		Path:   "/rest/food/barcode/v2",
+		Path:   "/rest/server.api",
 		Params: params,
 	}
 	var env map[string]json.RawMessage
 	if _, err := client.DoJSON(ctx, s.c, creq, &env); err != nil {
 		return zero, err
 	}
-	raw, ok := env["food"]
+	raw, ok := env["food_id"]
 	if !ok {
-		return zero, fmt.Errorf("food.FindIDForBarcode: response missing key %q", "food")
+		return zero, fmt.Errorf("food.FindIDForBarcode: response missing key %q", "food_id")
 	}
-	var result Food
-	if err := json.Unmarshal(raw, &result); err != nil {
-		return zero, fmt.Errorf("food.FindIDForBarcode: unmarshal: %w", err)
+	var idWrap struct {
+		Value types.APIInt `json:"value"`
 	}
-	return result, nil
+	if err := json.Unmarshal(raw, &idWrap); err != nil {
+		return zero, fmt.Errorf("food.FindIDForBarcode: unmarshal food_id: %w", err)
+	}
+	if idWrap.Value.Int64() == 0 {
+		return zero, fserrors.ErrNotFound
+	}
+
+	// Step 2 — fetch the full food record (with servings) for that id.
+	foodID := idWrap.Value
+	flagDefault := types.APIBool(true)
+	return s.Get(ctx, GetRequest{FoodID: &foodID, FlagDefaultServing: &flagDefault})
 }
 
 // Get implements Service.Get.

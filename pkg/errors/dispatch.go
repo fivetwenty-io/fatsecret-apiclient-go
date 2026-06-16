@@ -1,8 +1,67 @@
 package errors
 
 import (
+	"encoding/json"
+	"strconv"
 	"strings"
 )
+
+// fatSecretErrorEnvelope mirrors the FatSecret error body shape:
+//
+//	{"error":{"code":N,"message":"..."}}
+//
+// FatSecret returns these envelopes with HTTP 200, so the body — not the HTTP
+// status — is the authoritative failure signal for API-level errors.
+type fatSecretErrorEnvelope struct {
+	Error *struct {
+		// Code is decoded as RawMessage because FatSecret has been observed to
+		// encode it both as a JSON number (21) and as a JSON string ("21").
+		Code    json.RawMessage `json:"code"`
+		Message string          `json:"message"`
+	} `json:"error"`
+}
+
+// FromResponse inspects a FatSecret HTTP response and returns the appropriate
+// typed error, or nil when the response indicates success.
+//
+// Detection order:
+//
+//  1. A FatSecret {"error":{"code","message"}} envelope in the body — FatSecret's
+//     normal failure mode is HTTP 200 + error JSON — dispatched via
+//     DispatchByFatSecretCode so callers can errors.Is against ErrIPBlocked,
+//     ErrRateLimited, ErrUnauthorized, and the rest.
+//  2. An HTTP status >= 400 with no parseable envelope, via DispatchByStatus.
+//  3. Otherwise nil.
+//
+// It is safe to call on every response: success bodies carry no error envelope
+// and 2xx statuses produce nil.
+func FromResponse(status int, body []byte) error {
+	if len(body) > 0 {
+		var env fatSecretErrorEnvelope
+		if err := json.Unmarshal(body, &env); err == nil && env.Error != nil {
+			if code := parseErrorCode(env.Error.Code); code != 0 {
+				return DispatchByFatSecretCode(code, env.Error.Message, status)
+			}
+		}
+	}
+	return DispatchByStatus(status, string(body))
+}
+
+// parseErrorCode extracts the integer FatSecret error code from its raw JSON
+// value, tolerating both numeric (21) and quoted-string ("21") encodings.
+// Returns 0 when the value is empty, null, or unparseable.
+func parseErrorCode(raw json.RawMessage) int {
+	s := strings.TrimSpace(string(raw))
+	if s == "" || s == "null" {
+		return 0
+	}
+	s = strings.Trim(s, `"`)
+	n, err := strconv.Atoi(strings.TrimSpace(s))
+	if err != nil {
+		return 0
+	}
+	return n
+}
 
 // DispatchByFatSecretCode converts a raw FatSecret API error code to the appropriate
 // typed error. It is called by the response handler whenever the response body contains

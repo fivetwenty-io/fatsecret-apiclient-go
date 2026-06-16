@@ -13,6 +13,7 @@ import (
 	internaltls "github.com/fivetwenty-io/fatsecret-apiclient-go/internal/tls"
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/auth"
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/cache"
+	fserrors "github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors"
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/metrics"
 )
 
@@ -166,11 +167,21 @@ func (c *clientImpl) Do(ctx context.Context, req *Request) (*Response, error) {
 		return nil, err
 	}
 
-	return &Response{
+	resp := &Response{
 		StatusCode: httpResp.StatusCode,
 		Body:       bodyBytes,
 		Header:     httpResp.Header,
-	}, nil
+	}
+
+	// FatSecret signals API-level failures with HTTP 200 + an
+	// {"error":{"code","message"}} body, so the body must be inspected before
+	// the response is treated as success. The Response is still returned
+	// alongside the error so callers can inspect StatusCode/Body.
+	if apiErr := fserrors.FromResponse(resp.StatusCode, resp.Body); apiErr != nil {
+		return resp, apiErr
+	}
+
+	return resp, nil
 }
 
 // buildRequestParts constructs the full URL, encoded body, and Content-Type from
@@ -233,7 +244,10 @@ func (c *clientImpl) Close() error {
 func DoJSON(ctx context.Context, c Client, req *Request, out any) (*Response, error) {
 	resp, err := c.Do(ctx, req)
 	if err != nil {
-		return nil, err
+		// resp is non-nil for API-level errors (FatSecret error envelopes), so
+		// pass it through to let callers inspect StatusCode/Body; it is nil only
+		// for transport-level failures.
+		return resp, err
 	}
 	if out != nil && len(resp.Body) > 0 {
 		if uerr := json.Unmarshal(resp.Body, out); uerr != nil {
