@@ -55,10 +55,12 @@ generate:
 
 # verify-generated: regenerate into a temp dir and diff against committed output.
 # Fails on any drift; exits 0 only when generated files are up to date.
+# Hand-written regression tests that supplement generated code use the
+# *_manual_test.go suffix and are excluded from the drift check.
 verify-generated:
 	@TMPDIR=$$(mktemp -d) && \
 	  go run ./cmd/fsgen --spec spec/fatsecret.yaml --out $$TMPDIR && \
-	  diff -rq --exclude='*.go.bak' --exclude='doc.go' $$TMPDIR/pkg/api ./pkg/api && \
+	  diff -rq --exclude='*.go.bak' --exclude='doc.go' --exclude='*_manual_test.go' $$TMPDIR/pkg/api ./pkg/api && \
 	  diff -q $$TMPDIR/pkg/compatibility/matrix.go ./pkg/compatibility/matrix.go && \
 	  rm -rf $$TMPDIR && \
 	  echo "OK: generated output is up to date." || \

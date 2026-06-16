@@ -23,9 +23,7 @@ type Service interface {
 	Create(ctx context.Context, req CreateRequest) (FoodCreateResult, error)
 	// DeleteFavorite calls DELETE /rest/food/favorite/v1. Auth: oauth1_delegated.
 	DeleteFavorite(ctx context.Context, req DeleteFavoriteRequest) (SuccessResult, error)
-	// FindIDForBarcode resolves a GTIN-13 barcode to its full Food via
-	// food.find_id_for_barcode (method-style) + food.get.v4. Auth: client_credentials.
-	// Scope: barcode. See the implementation note — this is a hand-corrected composite.
+	// FindIDForBarcode calls GET /rest/server.api. Auth: client_credentials. Scope: barcode.
 	FindIDForBarcode(ctx context.Context, req FindIDForBarcodeRequest) (Food, error)
 	// Get calls GET /rest/food/v4. Auth: client_credentials. Scope: basic.
 	Get(ctx context.Context, req GetRequest) (Food, error)
@@ -110,25 +108,15 @@ func (s *service) DeleteFavorite(ctx context.Context, req DeleteFavoriteRequest)
 	return result, nil
 }
 
-// FindIDForBarcode implements Service.FindIDForBarcode.
+// FindIDForBarcode implements Service.FindIDForBarcode as a two-call composite.
 //
-// MANUALLY CORRECTED — not faithfully regenerated. FatSecret's barcode lookup is
-// a two-step, method-style flow, not the single path-style call spec/fatsecret.yaml
-// models:
-//
-//  1. food.find_id_for_barcode resolves a GTIN-13 to a food_id. The path-style
-//     endpoint (/rest/food/barcode/v2) returns error 101 "API was not resolved";
-//     only the method-style /rest/server.api?method=food.find_id_for_barcode
-//     resolves, and it returns {"food_id":{"value":"N"}} — an id, not a Food.
-//  2. food.get.v4 fetches the full Food (with servings) for that id.
-//
-// A food_id of 0 means the barcode is not in FatSecret's catalog → ErrNotFound.
-// The spec/generator must be updated to model this composite; until then this
-// hand-written body is the source of truth.
+// FatSecret's path-style barcode endpoint returns error 101 "API was not resolved";
+// only the method-style food.find_id_for_barcode call resolves, and it returns a food_id
+// ({"food_id":{"value":"N"}}), not a Food. This method resolves the
+// barcode to that id, then delegates to Get to fetch the full food (with servings).
+// A food_id of 0 means the barcode is absent from FatSecret's catalog → ErrNotFound.
 func (s *service) FindIDForBarcode(ctx context.Context, req FindIDForBarcodeRequest) (Food, error) {
 	var zero Food
-
-	// Step 1 — resolve the barcode to a food_id via the method-style endpoint.
 	params := req.ToParams()
 	params.Set("method", "food.find_id_for_barcode")
 	creq := &client.Request{
@@ -153,8 +141,6 @@ func (s *service) FindIDForBarcode(ctx context.Context, req FindIDForBarcodeRequ
 	if idWrap.Value.Int64() == 0 {
 		return zero, fserrors.ErrNotFound
 	}
-
-	// Step 2 — fetch the full food record (with servings) for that id.
 	foodID := idWrap.Value
 	flagDefault := types.APIBool(true)
 	return s.Get(ctx, GetRequest{FoodID: &foodID, FlagDefaultServing: &flagDefault})

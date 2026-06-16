@@ -32,7 +32,17 @@ type Field struct {
 	// Required true means the field is always present in the JSON response.
 	Required    bool
 	Description string
+	// NestedOuter and NestedInner, when both non-empty, mark a list field that
+	// FatSecret nests one level deeper than the flat struct models. The wire shape
+	// is `"<NestedOuter>": { "<NestedInner>": [ ... ] }` (e.g. servings.serving,
+	// results.food). When set, the renderer emits a custom UnmarshalJSON that
+	// flattens the nested list into this field. Only valid for FlexSlice[T] fields.
+	NestedOuter string
+	NestedInner string
 }
+
+// IsNested reports whether the field uses a FatSecret singular-key wrapper.
+func (f Field) IsNested() bool { return f.NestedOuter != "" && f.NestedInner != "" }
 
 // Method is one API endpoint entry from the methods: list.
 type Method struct {
@@ -60,6 +70,14 @@ type Method struct {
 	ResponseRoot string
 	// ResponseType is a TypeRef name from the types: section.
 	ResponseType string
+	// MethodParam, when non-empty, makes the call method-style: the generated body
+	// sets the "method" query parameter to this value (e.g. "food.find_id_for_barcode")
+	// and posts to RestPath ("/rest/server.api") instead of a path-style endpoint.
+	MethodParam string
+	// Composite, when non-empty, names a multi-call flow the service template knows
+	// how to render. The only value today is "barcode_lookup": resolve a barcode to
+	// a food_id via the method-style call, then delegate to Get for the full Food.
+	Composite string
 	// Pagination true means the response includes paging metadata.
 	Pagination bool
 	// SmokeFixture is the minimal valid JSON for zero-required-param smoke tests.
@@ -134,9 +152,17 @@ type TypeYAML struct {
 
 // FieldYAML is the YAML shape for one field within a type.
 type FieldYAML struct {
-	Type        string `yaml:"type"`
-	Required    bool   `yaml:"required"`
-	Description string `yaml:"description"`
+	Type        string      `yaml:"type"`
+	Required    bool        `yaml:"required"`
+	Description string      `yaml:"description"`
+	Nested      *NestedYAML `yaml:"nested"`
+}
+
+// NestedYAML declares a FatSecret singular-key wrapper for a list field:
+// the wire shape is `"<outer>": { "<inner>": [ ... ] }`.
+type NestedYAML struct {
+	Outer string `yaml:"outer"`
+	Inner string `yaml:"inner"`
 }
 
 // MethodYAML is the YAML shape for one method entry.
@@ -154,6 +180,8 @@ type MethodYAML struct {
 	Params             []ParamYAML `yaml:"params"`
 	ResponseRoot       string      `yaml:"response_root"`
 	ResponseType       string      `yaml:"response_type"`
+	MethodParam        string      `yaml:"method_param"`
+	Composite          string      `yaml:"composite"`
 	SmokeFixture       string      `yaml:"smoke_fixture"`
 	GoNameOverride     string      `yaml:"go_name_override"`
 }

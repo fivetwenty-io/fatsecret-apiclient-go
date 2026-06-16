@@ -270,12 +270,23 @@ func convertTypeDef(name string, raw TypeYAML, _ map[string]TypeYAML) (TypeDef, 
 			if f.Type == "" {
 				return TypeDef{}, fmt.Errorf("field %q missing type", fn)
 			}
-			td.Fields = append(td.Fields, Field{
+			field := Field{
 				Name:        fn,
 				Type:        f.Type,
 				Required:    f.Required,
 				Description: f.Description,
-			})
+			}
+			if f.Nested != nil {
+				if f.Nested.Outer == "" || f.Nested.Inner == "" {
+					return TypeDef{}, fmt.Errorf("field %q: nested requires both outer and inner", fn)
+				}
+				if !strings.HasPrefix(f.Type, "FlexSlice[") {
+					return TypeDef{}, fmt.Errorf("field %q: nested is only valid for FlexSlice[T] fields, got %q", fn, f.Type)
+				}
+				field.NestedOuter = f.Nested.Outer
+				field.NestedInner = f.Nested.Inner
+			}
+			td.Fields = append(td.Fields, field)
 		}
 	}
 	return td, nil
@@ -316,6 +327,10 @@ func convertMethod(raw MethodYAML) (Method, error) {
 		params[i] = Param(p)
 	}
 
+	if raw.Composite != "" && !knownComposites[raw.Composite] {
+		return Method{}, fmt.Errorf("unknown composite %q", raw.Composite)
+	}
+
 	return Method{
 		Namespace:          raw.Namespace,
 		Name:               raw.Name,
@@ -329,10 +344,17 @@ func convertMethod(raw MethodYAML) (Method, error) {
 		Params:             params,
 		ResponseRoot:       raw.ResponseRoot,
 		ResponseType:       raw.ResponseType,
+		MethodParam:        raw.MethodParam,
+		Composite:          raw.Composite,
 		Pagination:         raw.Pagination,
 		SmokeFixture:       raw.SmokeFixture,
 		GoNameOverride:     raw.GoNameOverride,
 	}, nil
+}
+
+// knownComposites enumerates the multi-call flows the service template can render.
+var knownComposites = map[string]bool{
+	"barcode_lookup": true,
 }
 
 // validateTypeRef checks that the type keyword is a known primitive or a defined TypeRef.

@@ -183,8 +183,62 @@ func buildFuncMap() template.FuncMap {
 		"GoResponseFieldType": goResponseFieldType,
 		"EncodeParam":         encodeParam,
 		"PathPrefix":          pathPrefix,
+		"AnyNested":           anyNested,
+		"HasNested":           hasNested,
+		"NestedFields":        nestedFields,
+		"AnyComposite":        anyComposite,
+		"RecvName":            recvName,
 		"not":                 func(b bool) bool { return !b },
 	}
+}
+
+// anyNested reports whether any type in the slice has a nested list field.
+func anyNested(types []ir.TypeDef) bool {
+	for _, td := range types {
+		if hasNested(td) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasNested reports whether a type has at least one nested list field.
+func hasNested(td ir.TypeDef) bool {
+	for _, f := range td.Fields {
+		if f.IsNested() {
+			return true
+		}
+	}
+	return false
+}
+
+// nestedFields returns the fields of a type that use a singular-key wrapper.
+func nestedFields(fields []ir.Field) []ir.Field {
+	var out []ir.Field
+	for _, f := range fields {
+		if f.IsNested() {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// anyComposite reports whether any method is a multi-call composite.
+func anyComposite(methods []ir.Method) bool {
+	for _, m := range methods {
+		if m.Composite != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// recvName returns the conventional single-letter receiver for a type name.
+func recvName(typeName string) string {
+	if typeName == "" {
+		return "v"
+	}
+	return strings.ToLower(typeName[:1])
 }
 
 // goFieldName converts a snake_case wire name to a PascalCase Go field name,
