@@ -182,6 +182,7 @@ func buildFuncMap() template.FuncMap {
 		"GoResponseType":      goResponseType,
 		"GoResponseFieldType": goResponseFieldType,
 		"EncodeParam":         encodeParam,
+		"JSONValue":           jsonValue,
 		"PathPrefix":          pathPrefix,
 		"AnyNested":           anyNested,
 		"HasNested":           hasNested,
@@ -343,6 +344,29 @@ func encodeParam(typeName, expr string) string {
 	}
 	// Fallback: use fmt.Sprintf with %v for named types.
 	return fmt.Sprintf("fmt.Sprintf(\"%%v\", %s)", expr)
+}
+
+// jsonValue renders a Go expression converting a request field to the JSON-native
+// type the FatSecret JSON endpoints expect. It differs from encodeParam, which
+// stringifies everything for form encoding: a JSON body must carry real booleans
+// and numbers, so include_food_data goes on the wire as true, not "1".
+func jsonValue(typeName, expr string) string {
+	switch typeName {
+	case "string":
+		return expr
+	case "APIInt":
+		return fmt.Sprintf("int64(%s)", expr)
+	case "APIFloat":
+		return fmt.Sprintf("float64(%s)", expr)
+	case "APIBool":
+		return fmt.Sprintf("bool(%s)", expr)
+	case "APITernary":
+		return fmt.Sprintf("int8(%s)", expr)
+	case "APIDaysEpoch":
+		return fmt.Sprintf("func() int64 { t := time.Time(%s); return int64(t.Sub(time.Date(1970,1,1,0,0,0,0,time.UTC)) / (24 * time.Hour)) }()", expr)
+	}
+	// Fallback: hand the named type to encoding/json as-is.
+	return expr
 }
 
 // pathPrefix strips any vN suffix query params to produce the path prefix for smoke test assertions.

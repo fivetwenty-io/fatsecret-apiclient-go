@@ -2,6 +2,7 @@
 package profile
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 // Suppress unused imports for packages that may not be needed for all param types.
 var (
 	_ = fmt.Sprintf
+	_ = json.Marshal
 	_ = strconv.FormatFloat
 	_ = time.UTC
 	_ = types.APIInt(0)

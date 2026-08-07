@@ -2,6 +2,7 @@
 package native
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 // Suppress unused imports for packages that may not be needed for all param types.
 var (
 	_ = fmt.Sprintf
+	_ = json.Marshal
 	_ = strconv.FormatFloat
 	_ = time.UTC
 	_ = types.APIInt(0)
@@ -56,6 +58,27 @@ func (r ProcessRequest) ToParams() url.Values {
 	return p
 }
 
+// ToJSONBody encodes set fields into the JSON request body this endpoint
+// requires. Values keep their JSON-native types — booleans stay booleans —
+// because the endpoint rejects a form-encoded body with the generic error
+// code 1 and does not coerce stringified values.
+func (r ProcessRequest) ToJSONBody() ([]byte, error) {
+	m := map[string]any{}
+	if r.UserInput != nil {
+		m["user_input"] = (*r.UserInput)
+	}
+	if r.IncludeFoodData != nil {
+		m["include_food_data"] = bool((*r.IncludeFoodData))
+	}
+	if r.Region != nil {
+		m["region"] = (*r.Region)
+	}
+	if r.Language != nil {
+		m["language"] = (*r.Language)
+	}
+	return json.Marshal(m)
+}
+
 // RecognizeRequest holds optional parameters for Recognize.
 // Nil pointer fields are omitted from the request.
 type RecognizeRequest struct {
@@ -91,4 +114,25 @@ func (r RecognizeRequest) ToParams() url.Values {
 		p.Set("language", (*r.Language))
 	}
 	return p
+}
+
+// ToJSONBody encodes set fields into the JSON request body this endpoint
+// requires. Values keep their JSON-native types — booleans stay booleans —
+// because the endpoint rejects a form-encoded body with the generic error
+// code 1 and does not coerce stringified values.
+func (r RecognizeRequest) ToJSONBody() ([]byte, error) {
+	m := map[string]any{}
+	if r.ImageB64 != nil {
+		m["image_b64"] = (*r.ImageB64)
+	}
+	if r.IncludeFoodData != nil {
+		m["include_food_data"] = bool((*r.IncludeFoodData))
+	}
+	if r.Region != nil {
+		m["region"] = (*r.Region)
+	}
+	if r.Language != nil {
+		m["language"] = (*r.Language)
+	}
+	return json.Marshal(m)
 }

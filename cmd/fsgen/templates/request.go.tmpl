@@ -2,6 +2,7 @@
 package {{.PackageName}}
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 // Suppress unused imports for packages that may not be needed for all param types.
 var (
 	_ = fmt.Sprintf
+	_ = json.Marshal
 	_ = strconv.FormatFloat
 	_ = time.UTC
 	_ = types.APIInt(0)
@@ -40,4 +42,18 @@ func (r {{.GoMethodName}}Request) ToParams() url.Values {
 {{- end}}{{- end}}
 	return p
 }
-{{end}}{{- end}}
+{{if eq .BodyEncoding "json"}}
+// ToJSONBody encodes set fields into the JSON request body this endpoint
+// requires. Values keep their JSON-native types — booleans stay booleans —
+// because the endpoint rejects a form-encoded body with the generic error
+// code 1 and does not coerce stringified values.
+func (r {{.GoMethodName}}Request) ToJSONBody() ([]byte, error) {
+	m := map[string]any{}
+{{- range .Params}}{{if ne .Location "path"}}
+	if r.{{GoFieldName .Name}} != nil {
+		m[{{printf "%q" .Name}}] = {{JSONValue .Type (printf "(*r.%s)" (GoFieldName .Name))}}
+	}
+{{- end}}{{- end}}
+	return json.Marshal(m)
+}
+{{end}}{{end}}{{- end}}

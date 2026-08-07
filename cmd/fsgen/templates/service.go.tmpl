@@ -81,12 +81,26 @@ func (s *service) {{.GoMethodName}}(ctx context.Context{{if .HasRequestStruct}},
 // {{.GoMethodName}} implements Service.{{.GoMethodName}}.
 func (s *service) {{.GoMethodName}}(ctx context.Context{{if .HasRequestStruct}}, req {{.GoMethodName}}Request{{end}}) ({{GoResponseType .ResponseType}}, error) {
 	var zero {{GoResponseType .ResponseType}}
+{{- if eq .BodyEncoding "json"}}
+	{{if .HasRequestStruct}}body, err := req.ToJSONBody(){{else}}body, err := json.Marshal(map[string]any{}){{end}}
+	if err != nil {
+		return zero, fmt.Errorf("{{$pkg}}.{{.GoMethodName}}: encode body: %w", err)
+	}
+	creq := &client.Request{
+		Method: {{printf "%q" .HTTPVerb}},
+		Path:   {{printf "%q" .RestPath}},
+		Body:   body,
+		// This endpoint always answers JSON and rejects format=json.
+		OmitFormatParam: true,
+	}
+{{- else}}
 	{{if .HasRequestStruct}}params := req.ToParams(){{else}}params := url.Values{}{{end}}
 	creq := &client.Request{
 		Method: {{printf "%q" .HTTPVerb}},
 		Path:   {{printf "%q" .RestPath}},
 		Params: params,
 	}
+{{- end}}
 	var env map[string]json.RawMessage
 	if _, err := client.DoJSON(ctx, s.c, creq, &env); err != nil {
 		return zero, err

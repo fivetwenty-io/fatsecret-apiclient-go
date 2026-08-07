@@ -51,12 +51,22 @@ func (m *mockClient) Do(ctx context.Context, req *pkgclient.Request) (*pkgclient
 		rawURL += req.Path
 	}
 
-	// Clone params; inject format=json as the real client does.
+	// Clone params; inject format=json as the real client does, honouring the
+	// same OmitFormatParam opt-out so tests exercise the URL the server sees.
 	params := make(url.Values, len(req.Params)+1)
 	for k, vv := range req.Params {
 		params[k] = append([]string(nil), vv...)
 	}
-	params.Set("format", "json")
+	if !req.OmitFormatParam {
+		params.Set("format", "json")
+	}
+
+	withQuery := func(u string) string {
+		if encoded := params.Encode(); encoded != "" {
+			return u + "?" + encoded
+		}
+		return u
+	}
 
 	var bodyReader io.Reader
 	var contentType string
@@ -64,13 +74,13 @@ func (m *mockClient) Do(ctx context.Context, req *pkgclient.Request) (*pkgclient
 
 	switch method {
 	case http.MethodGet, http.MethodHead, http.MethodDelete, http.MethodOptions:
-		rawURL = rawURL + "?" + params.Encode()
+		rawURL = withQuery(rawURL)
 	default:
 		if req.Body == nil {
 			bodyReader = strings.NewReader(params.Encode())
 			contentType = "application/x-www-form-urlencoded"
 		} else {
-			rawURL = rawURL + "?" + params.Encode()
+			rawURL = withQuery(rawURL)
 			bodyReader = strings.NewReader(string(req.Body))
 			contentType = "application/json"
 		}

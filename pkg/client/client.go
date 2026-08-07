@@ -81,6 +81,17 @@ type Request struct {
 	// Params are encoded into the query string and Body is used as-is.
 	Body []byte
 
+	// OmitFormatParam suppresses the automatic format=json parameter.
+	//
+	// format=json is mandatory on FatSecret's REST endpoints, which default to
+	// XML without it. The two native endpoints (natural-language-processing and
+	// image-recognition) are the exception: they always answer JSON, and they
+	// reject the parameter — a request carrying it comes back HTTP 200 with
+	// error code 1, "An unknown error occurred: 'please try again later'",
+	// which reads like a transient upstream fault rather than a malformed
+	// request. Generated code sets this for those endpoints.
+	OmitFormatParam bool
+
 	// Headers is a map of request headers merged with defaults. Authorization
 	// headers injected by the Authenticator take precedence over values set here.
 	Headers map[string]string
@@ -200,13 +211,26 @@ func (c *clientImpl) buildRequestParts(req *Request) (rawURL string, body []byte
 	for k, vv := range req.Params {
 		params[k] = append([]string(nil), vv...)
 	}
-	// format=json is mandatory — FatSecret defaults to XML without it.
-	params.Set("format", "json")
+	// format=json is mandatory — FatSecret defaults to XML without it — except
+	// on the native endpoints, which always answer JSON and reject the param.
+	if !req.OmitFormatParam {
+		params.Set("format", "json")
+	}
+
+	// withQuery appends the encoded params, leaving the URL untouched when there
+	// are none — a bare trailing "?" is what an endpoint that rejects
+	// format=json would otherwise still receive.
+	withQuery := func(u string) string {
+		if encoded := params.Encode(); encoded != "" {
+			return u + "?" + encoded
+		}
+		return u
+	}
 
 	switch strings.ToUpper(req.Method) {
 	case http.MethodGet, http.MethodHead, http.MethodDelete, http.MethodOptions:
 		// Idempotent methods: all params (including format=json) go in the query string.
-		rawURL = rawURL + "?" + params.Encode()
+		rawURL = withQuery(rawURL)
 
 	default:
 		// POST and PATCH: when Body is nil, encode Params as a form body.
@@ -215,7 +239,7 @@ func (c *clientImpl) buildRequestParts(req *Request) (rawURL string, body []byte
 			body = []byte(params.Encode())
 			contentType = "application/x-www-form-urlencoded"
 		} else {
-			rawURL = rawURL + "?" + params.Encode()
+			rawURL = withQuery(rawURL)
 			body = req.Body
 			contentType = "application/json"
 		}

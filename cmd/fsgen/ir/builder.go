@@ -331,6 +331,13 @@ func convertMethod(raw MethodYAML) (Method, error) {
 		return Method{}, fmt.Errorf("unknown composite %q", raw.Composite)
 	}
 
+	if raw.BodyEncoding != "" && !knownBodyEncodings[raw.BodyEncoding] {
+		return Method{}, fmt.Errorf("unknown body_encoding %q", raw.BodyEncoding)
+	}
+	if raw.BodyEncoding == "json" && !strings.EqualFold(raw.HTTPVerb, "POST") {
+		return Method{}, fmt.Errorf("body_encoding json requires http_verb POST, got %q", raw.HTTPVerb)
+	}
+
 	return Method{
 		Namespace:          raw.Namespace,
 		Name:               raw.Name,
@@ -346,6 +353,7 @@ func convertMethod(raw MethodYAML) (Method, error) {
 		ResponseType:       raw.ResponseType,
 		MethodParam:        raw.MethodParam,
 		Composite:          raw.Composite,
+		BodyEncoding:       raw.BodyEncoding,
 		Pagination:         raw.Pagination,
 		SmokeFixture:       raw.SmokeFixture,
 		GoNameOverride:     raw.GoNameOverride,
@@ -355,6 +363,13 @@ func convertMethod(raw MethodYAML) (Method, error) {
 // knownComposites enumerates the multi-call flows the service template can render.
 var knownComposites = map[string]bool{
 	"barcode_lookup": true,
+}
+
+// knownBodyEncodings enumerates the POST body encodings the request and service
+// templates can render. "form" is the default and need not be spelled out.
+var knownBodyEncodings = map[string]bool{
+	"form": true,
+	"json": true,
 }
 
 // validateTypeRef checks that the type keyword is a known primitive or a defined TypeRef.

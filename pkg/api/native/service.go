@@ -29,11 +29,16 @@ func New(c client.Client) Service { return &service{c: c} }
 // Process implements Service.Process.
 func (s *service) Process(ctx context.Context, req ProcessRequest) (NLPFoodResponse, error) {
 	var zero NLPFoodResponse
-	params := req.ToParams()
+	body, err := req.ToJSONBody()
+	if err != nil {
+		return zero, fmt.Errorf("native.Process: encode body: %w", err)
+	}
 	creq := &client.Request{
 		Method: "POST",
 		Path:   "/rest/natural-language-processing/v1",
-		Params: params,
+		Body:   body,
+		// This endpoint always answers JSON and rejects format=json.
+		OmitFormatParam: true,
 	}
 	var env map[string]json.RawMessage
 	if _, err := client.DoJSON(ctx, s.c, creq, &env); err != nil {
@@ -53,11 +58,16 @@ func (s *service) Process(ctx context.Context, req ProcessRequest) (NLPFoodRespo
 // Recognize implements Service.Recognize.
 func (s *service) Recognize(ctx context.Context, req RecognizeRequest) (NLPFoodResponse, error) {
 	var zero NLPFoodResponse
-	params := req.ToParams()
+	body, err := req.ToJSONBody()
+	if err != nil {
+		return zero, fmt.Errorf("native.Recognize: encode body: %w", err)
+	}
 	creq := &client.Request{
 		Method: "POST",
 		Path:   "/rest/image-recognition/v2",
-		Params: params,
+		Body:   body,
+		// This endpoint always answers JSON and rejects format=json.
+		OmitFormatParam: true,
 	}
 	var env map[string]json.RawMessage
 	if _, err := client.DoJSON(ctx, s.c, creq, &env); err != nil {

@@ -558,3 +558,64 @@ func TestDoJSON_UnmarshalsBody(t *testing.T) {
 		t.Errorf("Food.Name: expected 'Chicken Breast', got %q", out.Food.Name)
 	}
 }
+
+// ---- OmitFormatParam -------------------------------------------------------
+
+// format=json is mandatory on FatSecret's REST endpoints, but the two native
+// endpoints reject it with an HTTP 200 error code 1 that is indistinguishable
+// from a transient upstream fault. These tests pin both directions so neither
+// the default nor the opt-out can regress silently.
+
+func TestDo_OmitFormatParam_DropsFormatFromQuery(t *testing.T) {
+	t.Parallel()
+	srv, lastQuery := newTestServer(t, http.StatusOK, `{"food_response":[]}`)
+
+	c, err := client.NewClient(client.Options{
+		Authenticator: validAuth(),
+		BaseURL:       srv.URL,
+		MaxRetries:    0,
+	})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	t.Cleanup(func() { _ = c.Close() })
+
+	if _, err := c.Do(context.Background(), &client.Request{
+		Method:          http.MethodPost,
+		Path:            "/rest/image-recognition/v2",
+		Body:            []byte(`{"image_b64":"aGVsbG8="}`),
+		OmitFormatParam: true,
+	}); err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+
+	if *lastQuery != "" {
+		t.Errorf("query = %q, want empty (no format param, and no bare trailing ?)", *lastQuery)
+	}
+}
+
+func TestDo_WithoutOmitFormatParam_KeepsFormatJSON(t *testing.T) {
+	t.Parallel()
+	srv, lastQuery := newTestServer(t, http.StatusOK, `{"foods":{}}`)
+
+	c, err := client.NewClient(client.Options{
+		Authenticator: validAuth(),
+		BaseURL:       srv.URL,
+		MaxRetries:    0,
+	})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	t.Cleanup(func() { _ = c.Close() })
+
+	if _, err := c.Do(context.Background(), &client.Request{
+		Method: http.MethodGet,
+		Path:   "/rest/foods/search/v5",
+	}); err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+
+	if *lastQuery != "format=json" {
+		t.Errorf("query = %q, want format=json — every other endpoint defaults to XML without it", *lastQuery)
+	}
+}

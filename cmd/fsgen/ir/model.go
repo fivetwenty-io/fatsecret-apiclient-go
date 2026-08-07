@@ -78,6 +78,13 @@ type Method struct {
 	// how to render. The only value today is "barcode_lookup": resolve a barcode to
 	// a food_id via the method-style call, then delegate to Get for the full Food.
 	Composite string
+	// BodyEncoding selects how POST parameters reach the server: "" or "form"
+	// encodes them as an application/x-www-form-urlencoded body, "json" sends
+	// them as an application/json object. FatSecret's REST endpoints take form
+	// bodies, but the two native endpoints (natural-language-processing and
+	// image-recognition) accept only JSON and answer a form body with the
+	// generic error code 1.
+	BodyEncoding string
 	// Pagination true means the response includes paging metadata.
 	Pagination bool
 	// SmokeFixture is the minimal valid JSON for zero-required-param smoke tests.
@@ -182,6 +189,7 @@ type MethodYAML struct {
 	ResponseType       string      `yaml:"response_type"`
 	MethodParam        string      `yaml:"method_param"`
 	Composite          string      `yaml:"composite"`
+	BodyEncoding       string      `yaml:"body_encoding"`
 	SmokeFixture       string      `yaml:"smoke_fixture"`
 	GoNameOverride     string      `yaml:"go_name_override"`
 }
