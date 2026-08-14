@@ -22,16 +22,16 @@ type AutocompleteResult struct {
 type Food struct {
 	// BrandName — Brand name; present only for Brand food_type
 	BrandName *string `json:"brand_name,omitempty"`
-	// FoodAttributes — Allergen / preference attributes; Premier tier only
+	// FoodAttributes — Allergen / preference attributes; Premier tier only. UNVERIFIED shape — see note above.
 	FoodAttributes *string `json:"food_attributes,omitempty"`
 	// FoodID — Unique food identifier
 	FoodID types.APIInt `json:"food_id"`
-	// FoodImages — Food image URLs; Premier tier + include_food_images=true only
+	// FoodImages — Food image URLs; Premier tier + include_food_images=true only. UNVERIFIED shape — see note above.
 	FoodImages *string `json:"food_images,omitempty"`
 	// FoodName — Display name of the food
 	FoodName string `json:"food_name"`
 	// FoodSubCategories — Sub-category strings; Premier tier + include_sub_categories=true only
-	FoodSubCategories *string `json:"food_sub_categories,omitempty"`
+	FoodSubCategories types.FlexSlice[string] `json:"food_sub_categories,omitempty"`
 	// FoodType — Generic or Brand
 	FoodType string `json:"food_type"`
 	// FoodURL — FatSecret URL for the food
@@ -52,10 +52,21 @@ func (f *Food) UnmarshalJSON(b []byte) error {
 	type alias Food
 	aux := struct {
 		*alias
-		Servings json.RawMessage `json:"servings"`
+		FoodSubCategories json.RawMessage `json:"food_sub_categories"`
+		Servings          json.RawMessage `json:"servings"`
 	}{alias: (*alias)(f)}
 	if err := json.Unmarshal(b, &aux); err != nil {
 		return err
+	}
+	if raw := bytes.TrimSpace(aux.FoodSubCategories); len(raw) != 0 &&
+		!bytes.Equal(raw, []byte("null")) && !bytes.Equal(raw, []byte(`""`)) {
+		var nested struct {
+			Inner types.FlexSlice[string] `json:"food_sub_category,omitempty"`
+		}
+		if err := json.Unmarshal(raw, &nested); err != nil {
+			return fmt.Errorf("foods: decode Food food_sub_categories: %w", err)
+		}
+		f.FoodSubCategories = nested.Inner
 	}
 	if raw := bytes.TrimSpace(aux.Servings); len(raw) != 0 &&
 		!bytes.Equal(raw, []byte("null")) && !bytes.Equal(raw, []byte(`""`)) {

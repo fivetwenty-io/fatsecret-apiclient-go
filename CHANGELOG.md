@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.0.4] — 2026-08-14
+
+### Fixed
+
+- **`Food.food_sub_categories` is a nested list wrapper, not a string** — FatSecret returns it as `{"food_sub_categories":{"food_sub_category":[...]}}`, the same singular-key wrapper `servings` uses, and collapses it to a bare string when one sub-category matches. It was modelled as `*string`, so decoding any food carrying the field failed with `cannot unmarshal object into Go struct field ... of type string`. The field is now `FlexSlice[string]` with the wrapper declared in the spec, so all four wire shapes — array, single-object collapse, empty string, absent — flatten correctly.
+
+  The blast radius was larger than one field: `Food` decodes as part of a larger envelope, so the failure discarded the entire reply rather than the single value. `image-recognition/v2` with `include_food_data=true` returns the catalogue food object on every detection, so one branded food in a photo failed the whole recognition response. Search paths never request sub-categories and were unaffected.
+
+### Changed
+
+- **`Food.FoodSubCategories` type** — `*string` → `types.FlexSlice[string]`. Breaking for any caller reading the field directly; use `.Items()` for the list. No other field changes.
+
+### Known gaps
+
+- **`Food.food_images` and `Food.food_attributes` remain modelled as `string` and are almost certainly wrong** in the same way. Both are returned only when `include_food_images` / `include_food_attributes` is set, which no known caller does, so neither shape has been observed on the wire. They are deliberately left unchanged rather than corrected from a guess — modelling an unverified shape is what caused the defect above. Capture a live response before changing them.
+
 ## [0.0.3] — 2026-08-07
 
 ### Fixed
