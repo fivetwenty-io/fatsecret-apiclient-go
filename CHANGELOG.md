@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.0.5] — 2026-08-14
+
+### Changed
+
+- **`Food.food_images` and `Food.food_attributes` are now `json.RawMessage`** — neither field's wire shape has ever been observed (no caller requests them; the basic tier returns nothing for them on search), and both were modelled as `*string` on the same guess that broke `food_sub_categories` in 0.0.4. As raw bytes they can never fail the enclosing decode, whatever FatSecret sends. Promote them to typed fields only once a live capture confirms the shape. Callers that read them as strings must now decode the raw bytes themselves.
+
+### Added
+
+- **`RawMessage` spec type** — for response fields whose wire shape is unverified; maps to `json.RawMessage`.
+- **Wire-contract tests over captured payloads** (`pkg/api/foods/wire_contract_test.go`, fixtures in `pkg/api/foods/testdata/captures/`) — real captured search and image-recognition payloads are checked on every CI run: every key FatSecret sends, at every depth, must be modelled by the generated structs, and every captured food object must decode through the production path. The key check is recursive because `DisallowUnknownFields` does not propagate through a custom `UnmarshalJSON`, so decoder-side strictness can never inspect a `Serving`.
+
 ## [0.0.4] — 2026-08-14
 
 ### Fixed

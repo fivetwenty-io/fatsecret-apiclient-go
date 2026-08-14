@@ -1,0 +1,161 @@
+{
+  "food_response": [
+    {
+      "eaten": {
+        "food_name_plural": "granola",
+        "food_name_singular": "granola",
+        "metric_description": "g",
+        "per_unit_metric_amount": 50,
+        "plural_description": "servings",
+        "singular_description": "serving",
+        "total_metric_amount": 50.0,
+        "total_nutritional_content": {
+          "calcium": "31",
+          "calories": "204",
+          "carbohydrate": "36.20",
+          "cholesterol": "0",
+          "fat": "5.52",
+          "fiber": "3.4",
+          "iron": "2.02",
+          "monounsaturated_fat": "2.000",
+          "polyunsaturated_fat": "1.206",
+          "potassium": "184",
+          "protein": "4.61",
+          "saturated_fat": "1.609",
+          "sodium": "92",
+          "sugar": "12.90",
+          "vitamin_a": "139",
+          "vitamin_c": "1.4"
+        },
+        "units": 1.0
+      },
+      "food": {
+        "food_id": "4655",
+        "food_name": "Granola",
+        "food_sub_categories": {
+          "food_sub_category": [
+            "Cereal",
+            "Granola"
+          ]
+        },
+        "food_type": "Generic",
+        "food_url": "https://foods.fatsecret.com/calories-nutrition/generic/granola",
+        "servings": {
+          "serving": [
+            {
+              "calcium": "62",
+              "calories": "408",
+              "carbohydrate": "72.39",
+              "cholesterol": "1",
+              "fat": "11.03",
+              "fiber": "6.9",
+              "iron": "4.04",
+              "is_default": true,
+              "measurement_description": "g",
+              "metric_serving_amount": "100.000",
+              "metric_serving_unit": "g",
+              "monounsaturated_fat": "3.999",
+              "number_of_units": "100.000",
+              "polyunsaturated_fat": "2.411",
+              "potassium": "367",
+              "protein": "9.22",
+              "saturated_fat": "3.218",
+              "serving_description": "100 g",
+              "serving_id": "53335",
+              "serving_url": "https://foods.fatsecret.com/calories-nutrition/generic/granola?portionid=53335&portionamount=100.000",
+              "sodium": "185",
+              "sugar": "25.81",
+              "vitamin_a": "278",
+              "vitamin_c": "2.7"
+            },
+            {
+              "calcium": "69",
+              "calories": "453",
+              "carbohydrate": "80.35",
+              "cholesterol": "1",
+              "fat": "12.24",
+              "fiber": "7.7",
+              "iron": "4.48",
+              "measurement_description": "cup",
+              "metric_serving_amount": "111.000",
+              "metric_serving_unit": "g",
+              "monounsaturated_fat": "4.439",
+              "number_of_units": "1.000",
+              "polyunsaturated_fat": "2.676",
+              "potassium": "407",
+              "protein": "10.23",
+              "saturated_fat": "3.572",
+              "serving_description": "1 cup",
+              "serving_id": "16189",
+              "serving_url": "https://foods.fatsecret.com/calories-nutrition/generic/granola?portionid=16189&portionamount=1.000",
+              "sodium": "205",
+              "sugar": "28.65",
+              "vitamin_a": "309",
+              "vitamin_c": "3.0"
+            },
+            {
+              "calcium": "34",
+              "calories": "224",
+              "carbohydrate": "39.81",
+              "cholesterol": "1",
+              "fat": "6.07",
+              "fiber": "3.8",
+              "iron": "2.22",
+              "measurement_description": "serving (55g)",
+              "metric_serving_amount": "55.000",
+              "metric_serving_unit": "g",
+              "monounsaturated_fat": "2.199",
+              "number_of_units": "1.000",
+              "polyunsaturated_fat": "1.326",
+              "potassium": "202",
+              "protein": "5.07",
+              "saturated_fat": "1.770",
+              "serving_description": "1 serving (55 g)",
+              "serving_id": "16943",
+              "serving_url": "https://foods.fatsecret.com/calories-nutrition/generic/granola?portionid=16943&portionamount=1.000",
+              "sodium": "102",
+              "sugar": "14.20",
+              "vitamin_a": "153",
+              "vitamin_c": "1.5"
+            },
+            {
+              "calcium": "18",
+              "calories": "116",
+              "carbohydrate": "20.52",
+              "cholesterol": "0",
+              "fat": "3.13",
+              "fiber": "2.0",
+              "iron": "1.15",
+              "measurement_description": "oz",
+              "metric_serving_amount": "28.350",
+              "metric_serving_unit": "g",
+              "monounsaturated_fat": "1.134",
+              "number_of_units": "1.000",
+              "polyunsaturated_fat": "0.684",
+              "potassium": "104",
+              "protein": "2.61",
+              "saturated_fat": "0.912",
+              "serving_description": "1 oz",
+              "serving_id": "182591",
+              "serving_url": "https://foods.fatsecret.com/calories-nutrition/generic/granola?portionid=182591&portionamount=1.000",
+              "sodium": "52",
+              "sugar": "7.32",
+              "vitamin_a": "79",
+              "vitamin_c": "0.8"
+            }
+          ]
+        }
+      },
+      "food_entry_name": "Granola",
+      "food_id": 4655,
+      "suggested_serving": {
+        "custom_serving_description": "serving",
+        "metric_measure_amount": 100.0,
+        "metric_serving_description": "g",
+        "number_of_units": "0.5",
+        "serving_description": "100 g",
+        "serving_id": 53335
+      }
+    }
+  ]
+}

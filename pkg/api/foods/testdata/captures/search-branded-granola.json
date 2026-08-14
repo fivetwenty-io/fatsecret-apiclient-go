@@ -1,0 +1,165 @@
+{
+  "foods_search": {
+    "max_results": "3",
+    "page_number": "0",
+    "results": {
+      "food": [
+        {
+          "brand_name": "Back to Nature",
+          "food_id": "60938",
+          "food_name": "Classic Granola",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/back-to-nature/classic-granola",
+          "servings": {
+            "serving": [
+              {
+                "calories": "260",
+                "carbohydrate": "30.00",
+                "fat": "9.00",
+                "fiber": "6.0",
+                "measurement_description": "serving",
+                "metric_serving_amount": "62.000",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "2.500",
+                "number_of_units": "1.000",
+                "polyunsaturated_fat": "0",
+                "protein": "16.00",
+                "saturated_fat": "5.000",
+                "serving_description": "2/3 cup",
+                "serving_id": "102310",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/back-to-nature/classic-granola",
+                "sodium": "220",
+                "sugar": "9.00"
+              },
+              {
+                "calories": "419",
+                "carbohydrate": "48.39",
+                "fat": "14.52",
+                "fiber": "9.7",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "4.032",
+                "number_of_units": "100.0",
+                "polyunsaturated_fat": "0",
+                "protein": "25.81",
+                "saturated_fat": "8.065",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "355",
+                "sugar": "14.52"
+              }
+            ]
+          }
+        },
+        {
+          "brand_name": "Bare Naked",
+          "food_id": "2824142",
+          "food_name": "Vanilla Almond Crunch Granola",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/bare-naked/vanilla-almond-crunch-granola",
+          "servings": {
+            "serving": [
+              {
+                "calories": "110",
+                "carbohydrate": "18.00",
+                "fat": "3.00",
+                "fiber": "2.0",
+                "measurement_description": "serving",
+                "metric_serving_amount": "30.000",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "0",
+                "number_of_units": "1.000",
+                "polyunsaturated_fat": "0",
+                "potassium": "0",
+                "protein": "4.00",
+                "saturated_fat": "0",
+                "serving_description": "1/4 cup",
+                "serving_id": "2751530",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/bare-naked/vanilla-almond-crunch-granola",
+                "sodium": "30",
+                "sugar": "3.00",
+                "trans_fat": "0"
+              },
+              {
+                "calories": "367",
+                "carbohydrate": "60.00",
+                "fat": "10.00",
+                "fiber": "6.7",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "0",
+                "number_of_units": "100.0",
+                "polyunsaturated_fat": "0",
+                "potassium": "0",
+                "protein": "13.33",
+                "saturated_fat": "0",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "100",
+                "sugar": "10.00",
+                "trans_fat": "0"
+              }
+            ]
+          }
+        },
+        {
+          "brand_name": "Quaker",
+          "food_id": "2394005",
+          "food_name": "Natural Granola - Oats & Honey",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/quaker/natural-granola---oats-and-honey",
+          "servings": {
+            "serving": [
+              {
+                "calories": "210",
+                "carbohydrate": "38.00",
+                "cholesterol": "0",
+                "fat": "5.00",
+                "fiber": "5.0",
+                "measurement_description": "serving",
+                "metric_serving_amount": "48.000",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "3.000",
+                "number_of_units": "1.000",
+                "polyunsaturated_fat": "1.000",
+                "potassium": "260",
+                "protein": "5.00",
+                "saturated_fat": "0.500",
+                "serving_description": "1/2 cup",
+                "serving_id": "2340573",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/quaker/natural-granola---oats-and-honey",
+                "sodium": "30",
+                "sugar": "13.00",
+                "trans_fat": "0"
+              },
+              {
+                "calories": "438",
+                "carbohydrate": "79.17",
+                "cholesterol": "0",
+                "fat": "10.42",
+                "fiber": "10.4",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "6.250",
+                "number_of_units": "100.0",
+                "polyunsaturated_fat": "2.083",
+                "potassium": "542",
+                "protein": "10.42",
+                "saturated_fat": "1.042",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "63",
+                "sugar": "27.08",
+                "trans_fat": "0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "total_results": "849"
+  }
+}

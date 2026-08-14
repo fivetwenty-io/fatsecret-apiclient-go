@@ -1,0 +1,193 @@
+{
+  "foods_search": {
+    "max_results": "3",
+    "page_number": "0",
+    "results": {
+      "food": [
+        {
+          "brand_name": "Pure Protein",
+          "food_id": "70195",
+          "food_name": "Chocolate Deluxe High Protein Bar (Small)",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/pure-protein/chocolate-deluxe-high-protein-bar-(small)/1-bar",
+          "servings": {
+            "serving": [
+              {
+                "added_sugars": "2.00",
+                "calcium": "100",
+                "calories": "180",
+                "carbohydrate": "17.00",
+                "cholesterol": "15",
+                "fat": "4.50",
+                "fiber": "2.0",
+                "iron": "2.00",
+                "measurement_description": "serving",
+                "metric_serving_amount": "50.000",
+                "metric_serving_unit": "g",
+                "number_of_units": "1.000",
+                "potassium": "130",
+                "protein": "21.00",
+                "saturated_fat": "3.500",
+                "serving_description": "1 bar",
+                "serving_id": "112853",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/pure-protein/chocolate-deluxe-high-protein-bar-(small)/1-bar",
+                "sodium": "90",
+                "sugar": "3.00",
+                "trans_fat": "0",
+                "vitamin_a": "0",
+                "vitamin_c": "0",
+                "vitamin_d": "0"
+              },
+              {
+                "added_sugars": "4.00",
+                "calcium": "200",
+                "calories": "360",
+                "carbohydrate": "34.00",
+                "cholesterol": "30",
+                "fat": "9.00",
+                "fiber": "4.0",
+                "iron": "4.00",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "number_of_units": "100.0",
+                "potassium": "260",
+                "protein": "42.00",
+                "saturated_fat": "7.000",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "180",
+                "sugar": "6.00",
+                "trans_fat": "0",
+                "vitamin_a": "0",
+                "vitamin_c": "0",
+                "vitamin_d": "0"
+              }
+            ]
+          }
+        },
+        {
+          "brand_name": "Nature Valley",
+          "food_id": "3195552",
+          "food_name": "Protein Chewy Bars - Peanut, Almond & Dark Chocolate",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/nature-valley/protein-chewy-bars---peanut-almond-and-dark-chocolate",
+          "servings": {
+            "serving": [
+              {
+                "added_sugars": "5.00",
+                "calcium": "30",
+                "calories": "200",
+                "carbohydrate": "15.00",
+                "cholesterol": "4",
+                "fat": "12.00",
+                "fiber": "6.0",
+                "iron": "1.30",
+                "measurement_description": "serving",
+                "metric_serving_amount": "40.000",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "7.000",
+                "number_of_units": "1.000",
+                "polyunsaturated_fat": "1.000",
+                "potassium": "0",
+                "protein": "10.00",
+                "saturated_fat": "3.500",
+                "serving_description": "1 bar",
+                "serving_id": "3109425",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/nature-valley/protein-chewy-bars---peanut-almond-and-dark-chocolate",
+                "sodium": "160",
+                "sugar": "7.00",
+                "trans_fat": "0",
+                "vitamin_d": "0"
+              },
+              {
+                "added_sugars": "12.50",
+                "calcium": "75",
+                "calories": "500",
+                "carbohydrate": "37.50",
+                "cholesterol": "10",
+                "fat": "30.00",
+                "fiber": "15.0",
+                "iron": "3.25",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "monounsaturated_fat": "17.500",
+                "number_of_units": "100.0",
+                "polyunsaturated_fat": "2.500",
+                "potassium": "0",
+                "protein": "25.00",
+                "saturated_fat": "8.750",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "400",
+                "sugar": "17.50",
+                "trans_fat": "0",
+                "vitamin_d": "0"
+              }
+            ]
+          }
+        },
+        {
+          "brand_name": "Pure Protein",
+          "food_id": "8462028",
+          "food_name": "Chocolate Peanut Caramel High Protein Bar",
+          "food_type": "Brand",
+          "food_url": "https://foods.fatsecret.com/calories-nutrition/pure-protein/chocolate-peanut-caramel-high-protein-bar",
+          "servings": {
+            "serving": [
+              {
+                "added_sugars": "1.00",
+                "calcium": "125",
+                "calories": "190",
+                "carbohydrate": "16.00",
+                "cholesterol": "15",
+                "fat": "6.00",
+                "fiber": "1.0",
+                "iron": "0.70",
+                "measurement_description": "serving",
+                "metric_serving_amount": "50.000",
+                "metric_serving_unit": "g",
+                "number_of_units": "1.000",
+                "potassium": "100",
+                "protein": "20.00",
+                "saturated_fat": "4.000",
+                "serving_description": "1 bar",
+                "serving_id": "8128992",
+                "serving_url": "https://foods.fatsecret.com/calories-nutrition/pure-protein/chocolate-peanut-caramel-high-protein-bar",
+                "sodium": "210",
+                "sugar": "2.00",
+                "trans_fat": "0",
+                "vitamin_d": "0"
+              },
+              {
+                "added_sugars": "2.00",
+                "calcium": "250",
+                "calories": "380",
+                "carbohydrate": "32.00",
+                "cholesterol": "30",
+                "fat": "12.00",
+                "fiber": "2.0",
+                "iron": "1.40",
+                "measurement_description": "g",
+                "metric_serving_amount": "100.0",
+                "metric_serving_unit": "g",
+                "number_of_units": "100.0",
+                "potassium": "200",
+                "protein": "40.00",
+                "saturated_fat": "8.000",
+                "serving_description": "100 g",
+                "serving_id": "0",
+                "sodium": "420",
+                "sugar": "4.00",
+                "trans_fat": "0",
+                "vitamin_d": "0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "total_results": "1837"
+  }
+}
