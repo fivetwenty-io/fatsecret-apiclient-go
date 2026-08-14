@@ -16,12 +16,12 @@ var _ = types.APIInt(0)
 type Food struct {
 	// BrandName — Brand name; present only for Brand food_type
 	BrandName *string `json:"brand_name,omitempty"`
-	// FoodAttributes — Allergen / preference attributes; Premier tier only. UNVERIFIED shape — see note above.
-	FoodAttributes *string `json:"food_attributes,omitempty"`
+	// FoodAttributes — Allergen / preference attributes; Premier tier only. UNVERIFIED shape held as raw bytes — see note above.
+	FoodAttributes json.RawMessage `json:"food_attributes,omitempty"`
 	// FoodID — Unique food identifier
 	FoodID types.APIInt `json:"food_id"`
-	// FoodImages — Food image URLs; Premier tier + include_food_images=true only. UNVERIFIED shape — see note above.
-	FoodImages *string `json:"food_images,omitempty"`
+	// FoodImages — Food image URLs; Premier tier + include_food_images=true only. UNVERIFIED shape held as raw bytes — see note above.
+	FoodImages json.RawMessage `json:"food_images,omitempty"`
 	// FoodName — Display name of the food
 	FoodName string `json:"food_name"`
 	// FoodSubCategories — Sub-category strings; Premier tier + include_sub_categories=true only

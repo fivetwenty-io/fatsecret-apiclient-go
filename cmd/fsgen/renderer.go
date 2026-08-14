@@ -185,12 +185,26 @@ func buildFuncMap() template.FuncMap {
 		"JSONValue":           jsonValue,
 		"PathPrefix":          pathPrefix,
 		"AnyNested":           anyNested,
+		"AnyRaw":              anyRaw,
 		"HasNested":           hasNested,
 		"NestedFields":        nestedFields,
 		"AnyComposite":        anyComposite,
 		"RecvName":            recvName,
 		"not":                 func(b bool) bool { return !b },
 	}
+}
+
+// anyRaw reports whether any type in the slice has a RawMessage field, which
+// needs the encoding/json import even when no type has a nested wrapper.
+func anyRaw(types []ir.TypeDef) bool {
+	for _, td := range types {
+		for _, f := range td.Fields {
+			if f.Type == "RawMessage" {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // anyNested reports whether any type in the slice has a nested list field.
@@ -287,6 +301,12 @@ func goType(typeName string) string {
 		return "types.APITernary"
 	case "APIDaysEpoch":
 		return "types.APIDaysEpoch"
+	case "RawMessage":
+		// For response fields whose wire shape is unverified: json.RawMessage
+		// preserves whatever arrives byte-for-byte and can never fail the
+		// enclosing decode. Model the real type only once a live capture
+		// confirms the shape.
+		return "json.RawMessage"
 	}
 	if strings.HasPrefix(typeName, "FlexSlice[") && strings.HasSuffix(typeName, "]") {
 		inner := typeName[len("FlexSlice[") : len(typeName)-1]

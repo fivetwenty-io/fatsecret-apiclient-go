@@ -8,6 +8,12 @@ import (
 
 	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/types"
 )
+{{else if AnyRaw .Types}}
+import (
+	"encoding/json"
+
+	"github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/types"
+)
 {{else}}
 import "github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/types"
 {{end}}

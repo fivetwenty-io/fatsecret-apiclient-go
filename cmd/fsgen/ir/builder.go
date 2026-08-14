@@ -373,10 +373,10 @@ var knownBodyEncodings = map[string]bool{
 }
 
 // validateTypeRef checks that the type keyword is a known primitive or a defined TypeRef.
-// Accepts: string, APIInt, APIFloat, APIBool, APITernary, APIDaysEpoch, FlexSlice[X].
+// Accepts: string, APIInt, APIFloat, APIBool, APITernary, APIDaysEpoch, RawMessage, FlexSlice[X].
 func validateTypeRef(typeName string, types map[string]TypeDef) error {
 	switch typeName {
-	case "string", "APIInt", "APIFloat", "APIBool", "APITernary", "APIDaysEpoch":
+	case "string", "APIInt", "APIFloat", "APIBool", "APITernary", "APIDaysEpoch", "RawMessage":
 		return nil
 	}
 	if strings.HasPrefix(typeName, "FlexSlice[") && strings.HasSuffix(typeName, "]") {
