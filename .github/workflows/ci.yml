@@ -6,17 +6,21 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  GOLANGCI_LINT_VERSION: v2.13.2
+  GOSEC_VERSION: v2.29.0
+
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27.0"
           cache: true
 
       - name: Build
@@ -24,44 +28,44 @@ jobs:
 
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27.0"
           cache: true
 
       - name: Install tools
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           go install golang.org/x/vuln/cmd/govulncheck@latest
-          curl -sSfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin latest
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.12.2
+          go install github.com/securego/gosec/v2/cmd/gosec@${GOSEC_VERSION}
+          curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/${GOLANGCI_LINT_VERSION}/install.sh" | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Run make ci
         run: make ci
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27.0"
           cache: true
 
-      - name: Install golangci-lint
+      - name: Install tools
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.12.2
-
-      - name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/${GOLANGCI_LINT_VERSION}/install.sh" | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Run lint
         run: make lint
@@ -71,7 +75,7 @@ jobs:
 
   verify-generated:
     name: Verify Generated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     needs: [build]
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +83,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27.0"
           cache: true
 
       - name: Verify generated files are up to date
