@@ -60,7 +60,7 @@ generate:
 verify-generated:
 	@TMPDIR=$$(mktemp -d) && \
 	  go run ./cmd/fsgen --spec spec/fatsecret.yaml --out $$TMPDIR && \
-	  diff -rq --exclude='*.go.bak' --exclude='doc.go' --exclude='*_manual_test.go' $$TMPDIR/pkg/api ./pkg/api && \
+	  diff -rq --exclude='*.go.bak' --exclude='doc.go' --exclude='*_manual_test.go' --exclude='testdata' $$TMPDIR/pkg/api ./pkg/api && \
 	  diff -q $$TMPDIR/pkg/compatibility/matrix.go ./pkg/compatibility/matrix.go && \
 	  rm -rf $$TMPDIR && \
 	  echo "OK: generated output is up to date." || \
