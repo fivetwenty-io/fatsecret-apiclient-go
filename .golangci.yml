@@ -34,6 +34,7 @@ linters:
         - func (github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Client).Do(ctx context.Context, req *github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Request) (*github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/client.Response, error)
         - field GetBody func() (io.ReadCloser, error)
         - func github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors.DispatchByFatSecretCode(code int, msg string, httpStatus int) error
+        - func github.com/fivetwenty-io/fatsecret-apiclient-go/pkg/errors.FromResponse(status int, body []byte) error
 
     revive:
       rules:

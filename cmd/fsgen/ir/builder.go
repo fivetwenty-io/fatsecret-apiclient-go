@@ -292,28 +292,36 @@ func convertTypeDef(name string, raw TypeYAML, _ map[string]TypeYAML) (TypeDef, 
 	return td, nil
 }
 
-// convertMethod converts a raw YAML method to an IR Method.
-func convertMethod(raw MethodYAML) (Method, error) {
+// requiredMethodFields validates that every mandatory MethodYAML field is set.
+func requiredMethodFields(raw MethodYAML) error {
 	if raw.Namespace == "" {
-		return Method{}, fmt.Errorf("missing namespace")
+		return fmt.Errorf("missing namespace")
 	}
 	if raw.Name == "" {
-		return Method{}, fmt.Errorf("missing name")
+		return fmt.Errorf("missing name")
 	}
 	if raw.Version == 0 {
-		return Method{}, fmt.Errorf("missing version")
+		return fmt.Errorf("missing version")
 	}
 	if raw.HTTPVerb == "" {
-		return Method{}, fmt.Errorf("missing http_verb")
+		return fmt.Errorf("missing http_verb")
 	}
 	if raw.RestPath == "" {
-		return Method{}, fmt.Errorf("missing rest_path")
+		return fmt.Errorf("missing rest_path")
 	}
 	if raw.AuthTier == "" {
-		return Method{}, fmt.Errorf("missing auth_tier")
+		return fmt.Errorf("missing auth_tier")
 	}
 	if raw.ResponseType == "" {
-		return Method{}, fmt.Errorf("missing response_type")
+		return fmt.Errorf("missing response_type")
+	}
+	return nil
+}
+
+// convertMethod converts a raw YAML method to an IR Method.
+func convertMethod(raw MethodYAML) (Method, error) {
+	if err := requiredMethodFields(raw); err != nil {
+		return Method{}, err
 	}
 
 	params := make([]Param, len(raw.Params))

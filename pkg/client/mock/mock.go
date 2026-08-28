@@ -42,7 +42,34 @@ func (m *mockClient) Do(ctx context.Context, req *pkgclient.Request) (*pkgclient
 		return nil, fmt.Errorf("mock: nil request")
 	}
 
-	// Build URL.
+	httpReq, err := m.buildRequest(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := m.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("mock: http: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("mock: read body: %w", err)
+	}
+
+	return &pkgclient.Response{
+		StatusCode: resp.StatusCode,
+		Body:       body,
+		Header:     resp.Header,
+	}, nil
+}
+
+// buildRequest constructs the outgoing http.Request: baseURL + req.Path with
+// cloned params (injecting format=json as the real client does, honouring the
+// same OmitFormatParam opt-out so tests exercise the URL the server sees), and
+// the body/Content-Type appropriate for the HTTP verb.
+func (m *mockClient) buildRequest(ctx context.Context, req *pkgclient.Request) (*http.Request, error) {
 	rawURL := m.baseURL
 	if req.Path != "" {
 		if !strings.HasPrefix(req.Path, "/") {
@@ -51,8 +78,6 @@ func (m *mockClient) Do(ctx context.Context, req *pkgclient.Request) (*pkgclient
 		rawURL += req.Path
 	}
 
-	// Clone params; inject format=json as the real client does, honouring the
-	// same OmitFormatParam opt-out so tests exercise the URL the server sees.
 	params := make(url.Values, len(req.Params)+1)
 	for k, vv := range req.Params {
 		params[k] = append([]string(nil), vv...)
@@ -96,23 +121,7 @@ func (m *mockClient) Do(ctx context.Context, req *pkgclient.Request) (*pkgclient
 	if contentType != "" {
 		httpReq.Header.Set("Content-Type", contentType)
 	}
-
-	resp, err := m.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("mock: http: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("mock: read body: %w", err)
-	}
-
-	return &pkgclient.Response{
-		StatusCode: resp.StatusCode,
-		Body:       body,
-		Header:     resp.Header,
-	}, nil
+	return httpReq, nil
 }
 
 // Auth implements client.Client.Auth. Returns nil; mock has no authenticator.
