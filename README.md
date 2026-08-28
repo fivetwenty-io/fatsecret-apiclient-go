@@ -8,14 +8,29 @@ A production-ready Go client for the [FatSecret REST API](https://platform.fatse
 
 ## Features
 
-- **Three authentication strategies** — OAuth 2.0 client-credentials for server-to-server access; OAuth 1.0a signed (two-legged) for profile management endpoints; OAuth 1.0a profile-delegation for per-user diary operations.
-- **Tolerant decoding** — `pkg/types` handles every FatSecret wire quirk: numbers as quoted strings, booleans as `"0"`/`"1"`, and single-element arrays collapsed to bare objects.
-- **Typed errors** — sentinel errors (`ErrUnauthorized`, `ErrRateLimited`, etc.) and structured types (`PermissionError`, `ParameterError`) for precise error handling.
-- **Middleware chain** — cache, auth, retry, logging, and metrics compose in a single configurable pipeline.
-- **Response caching** — pluggable `Cache` interface with a built-in bounded LRU memory store and TTL expiry.
-- **Metrics collection** — pluggable `Collector` interface with a dependency-free `AtomicCollector` backed by `sync/atomic`.
-- **Batch fan-out** — `pkg/batch` executes a function concurrently over a slice with bounded concurrency; results are returned in input order.
-- **Generated 16-namespace surface** — all FatSecret namespaces (foods, food, exercises, profiles, recipes, and more) are generated from the API specification and regenerable with `make generate`.
+- **Three authentication strategies**
+  OAuth 2.0 client-credentials for server-to-server access; OAuth 1.0a signed (two-legged) for profile management endpoints; OAuth 1.0a profile-delegation for per-user diary operations.
+
+- **Tolerant decoding**
+  `pkg/types` handles every FatSecret wire quirk: numbers as quoted strings, booleans as `"0"`/`"1"`, and single-element arrays collapsed to bare objects.
+
+- **Typed errors**
+  Sentinel errors (`ErrUnauthorized`, `ErrRateLimited`, etc.) and structured types (`PermissionError`, `ParameterError`) for precise error handling.
+
+- **Middleware chain**
+  Cache, auth, retry, logging, and metrics compose in a single configurable pipeline.
+
+- **Response caching**
+  Pluggable `Cache` interface with a built-in bounded LRU memory store and TTL expiry.
+
+- **Metrics collection**
+  Pluggable `Collector` interface with a dependency-free `AtomicCollector` backed by `sync/atomic`.
+
+- **Batch fan-out**
+  `pkg/batch` executes a function concurrently over a slice with bounded concurrency; results are returned in input order.
+
+- **Generated 16-namespace surface**
+  All FatSecret namespaces (foods, food, exercises, profiles, recipes, and more) are generated from the API specification and regenerable with `make generate`.
 
 ## Installation
 
@@ -23,7 +38,7 @@ A production-ready Go client for the [FatSecret REST API](https://platform.fatse
 go get github.com/fivetwenty-io/fatsecret-apiclient-go
 ```
 
-Requires Go 1.21 or later.
+Requires Go 1.27 or later.
 
 ## Quick Start
 
@@ -94,7 +109,7 @@ A runnable version with environment-variable handling is at [examples/basic/](ex
 | `auth.NewOAuth1Signed` | Profile creation and auth-token retrieval (two-legged) | profile (create, get_auth) |
 | `auth.NewOAuth1ProfileDelegation` | Per-user diary operations using a delegated auth token | food_entries, exercise_entries, saved_meals, weight, profile (delegated methods) |
 
-Pass the chosen authenticator to `client.Options.Authenticator`. The auth middleware calls the authenticator transparently on every request, proactively refreshing OAuth 2.0 tokens before they expire.
+Pass the chosen authenticator to `client.Options.Authenticator`. The auth middleware calls the authenticator transparently on every request, refreshing OAuth 2.0 tokens before they expire.
 
 ## Examples
 
